@@ -3,20 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <style>
-    body { width: 300px; padding: 10px; }
-    select, button { margin: 5px 0; width: 100%; }
+    body {
+      background-color: #f7fafc; /* светло-серый фон */
+      /* padding: 16px; */
+    }
+    .popup-container {
+      background-color: #ffffff; /* белый фон */
+      border-radius: 8px; /* закругленные углы */
+      /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); тень */
+      padding: 12px;
+      width: 250px; /* фиксированная ширина */
+      margin: auto; /* центрирование */
+    }
+    h1 {
+      font-size: 1.25rem; /* размер шрифта заголовка */
+      font-weight: 600; /* жирный шрифт */
+      margin-bottom: 16px; /* отступ снизу */
+      text-align: center; /* выравнивание по центру */
+    }
+    select, button {
+      border: 1px solid #cbd5e0; /* граница */
+      border-radius: 8px; /* закругленные углы */
+      padding: 8px; /* отступы */
+      width: 100%; /* ширина 100% */
+      margin-bottom: 12px; /* отступ снизу */
+      font-size: 1rem; /* размер шрифта */
+    }
+    button {
+      background-color: #4299e1; /* цвет фона кнопки */
+      color: white; /* цвет текста кнопки */
+      cursor: pointer; /* указатель при наведении */
+    }
+    button:hover {
+      background-color: #3182ce; /* цвет фона кнопки при наведении */
+    }
   </style>
 </head>
 <body>
-  <select id="language">
-    <option value="ru">Русский</option>
-    <option value="en">Английский</option>
-  </select>
-  <select id="type">
-    <option value="manual">Ручные</option>
-    <option value="auto">Автоматические</option>
-  </select>
-  <button id="copySubtitles">Скопировать субтитры</button>
+  <div class="popup-container">
+    <h1>Выберите язык и тип</h1>
+    <select id="language">
+      <option value="en">Английский</option>
+      <option value="ru">Русский</option>
+    </select>
+    <select id="type">
+      <option value="manual">Ручные</option>
+      <option value="auto">Автоматические</option>
+    </select>
+    <button id="copySubtitles">Скопировать субтитры</button>
+  </div>
   <script src="popup.js"></script>
 </body>
 </html>
