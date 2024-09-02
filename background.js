@@ -7,24 +7,24 @@ chrome.action.onClicked.addListener((tab) => {
     chrome.tabs.sendMessage(tab.id, { action: "getAndCopySubtitles" }, (response) => {
       if (chrome.runtime.lastError) {
         console.error(chrome.runtime.lastError);
-        logMessage("Произошла ошибка при выполнении скрипта");
+        logMessage("An error occurred while executing the script");
         return;
       }
       
       if (!response) {
-        logMessage("Ошибка: Не получен ответ от страницы");
+        logMessage("Error: No response from the page");
         return;
       }
 
       if (response.error) {
-        logMessage(`Ошибка: ${response.error}`);
+        logMessage(`Error: ${response.error}`);
       } else if (response.success) {
         logMessage(response.message);
       } else {
-        logMessage("Ошибка: Неожиданный ответ от страницы");
+        logMessage("Error: Unexpected response from the page");
       }
     });
   } else {
-    logMessage("Это расширение работает только на страницах YouTube с видео");
+    logMessage("This extension only works on YouTube video pages");
   }
 });

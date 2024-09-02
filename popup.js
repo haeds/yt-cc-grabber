@@ -11,13 +11,13 @@ document.addEventListener('DOMContentLoaded', function() {
       }, function(response) {
         if (chrome.runtime.lastError) {
           console.error(chrome.runtime.lastError);
-          alert("Произошла ошибка при выполнении скрипта");
+          alert("An error occurred while executing the script");
         } else if (response && response.error) {
-          alert(`Ошибка: ${response.error}`);
+          alert(`Error: ${response.error}`);
         } else if (response && response.success) {
           alert(response.message);
         } else {
-          alert("Неожиданный ответ от страницы");
+          alert("Unexpected response from the page");
         }
       });
     });

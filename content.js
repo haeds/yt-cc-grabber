@@ -4,14 +4,14 @@ const RE_XML_TRANSCRIPT = /<text start="([^"]*)" dur="([^"]*)">([^<]*)<\/text>/g
 async function getSubtitles(language, type) {
   const videoId = getVideoId();
   if (!videoId) {
-    throw new Error('Не удалось получить ID видео');
+    throw new Error('Failed to get video ID');
   }
 
   const videoPageBody = await fetchVideoPage(videoId);
   const captionsData = extractCaptionsData(videoPageBody);
   
   if (!captionsData) {
-    throw new Error('Субтитры недоступны для этого видео');
+    throw new Error('Subtitles are not available for this video');
   }
 
   const { transcriptURL, languageCode, kind } = getTranscriptURL(captionsData, language, type);
@@ -53,24 +53,18 @@ function getTranscriptURL(captionsData, preferredLanguage, preferredType) {
   const preferredLanguageCodes = languageCodes[preferredLanguage];
   const fallbackLanguageCodes = languageCodes[preferredLanguage === 'ru' ? 'en' : 'ru'];
 
-  // Функция для проверки соответствия трека заданным критериям
   const isMatchingTrack = (track, langCodes, type) => 
     langCodes.some(code => track.languageCode.startsWith(code)) &&
     (type === 'auto' ? track.kind === 'asr' : track.kind !== 'asr');
 
-  // Поиск трека в порядке приоритета
   let selectedTrack = 
-    // 1. Предпочтительный язык и тип
     captionsData.captionTracks.find(track => isMatchingTrack(track, preferredLanguageCodes, preferredType)) ||
-    // 2. Предпочтительный язык, другой тип
     captionsData.captionTracks.find(track => isMatchingTrack(track, preferredLanguageCodes, preferredType === 'auto' ? 'manual' : 'auto')) ||
-    // 3. Другой язык, предпочтительный тип
     captionsData.captionTracks.find(track => isMatchingTrack(track, fallbackLanguageCodes, preferredType)) ||
-    // 4. Другой язык, другой тип
     captionsData.captionTracks.find(track => isMatchingTrack(track, fallbackLanguageCodes, preferredType === 'auto' ? 'manual' : 'auto'));
 
   if (!selectedTrack) {
-    throw new Error('Подходящие субтитры не найдены');
+    throw new Error('Suitable subtitles not found');
   }
 
   return { 
@@ -114,14 +108,14 @@ async function handleGetAndCopySubtitles(language, type) {
   try {
     const videoId = getVideoId();
     if (!videoId) {
-      throw new Error('Не удалось получить ID видео');
+      throw new Error('Failed to get video ID');
     }
 
     const videoPageBody = await fetchVideoPage(videoId);
     const captionsData = extractCaptionsData(videoPageBody);
     
     if (!captionsData) {
-      throw new Error('Субтитры недоступны для этого видео');
+      throw new Error('Subtitles are not available for this video');
     }
 
     const { transcriptURL, languageCode, kind } = getTranscriptURL(captionsData, language, type);
@@ -130,23 +124,22 @@ async function handleGetAndCopySubtitles(language, type) {
 
     copyToClipboard(subtitles);
 
-    const subtitleType = kind === 'asr' ? 'автоматически сгенерированные' : 'ручные';
-    const languageName = languageCode.startsWith('ru') ? 'русском' : 'английском';
+    const subtitleType = kind === 'asr' ? 'auto-generated' : 'manual';
+    const languageName = languageCode.startsWith('ru') ? 'Russian' : 'English';
 
     return { 
       success: true, 
-      message: `Субтитры на ${languageName} языке (${subtitleType}) скопированы в буфер обмена`
+      message: `Subtitles in ${languageName} (${subtitleType}) copied to clipboard`
     };
   } catch (error) {
     return { error: error.message };
   }
 }
 
-// Обновленный обработчик сообщений
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "getAndCopySubtitles") {
     handleGetAndCopySubtitles(request.language, request.type).then(sendResponse);
-    return true; // Indicates that the response is asynchronous
+    return true;
   }
 });
 
