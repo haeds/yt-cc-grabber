@@ -3,39 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
-      background-color: #f7fafc; /* светло-серый фон */
-      /* padding: 16px; */
+      background-color: #0f172a; 
+      color: #e2e8f0; 
+      font-family: Arial, sans-serif; 
+      margin: 0; 
+      padding: 0; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      height: 100vh;
     }
     .popup-container {
-      background-color: #ffffff; /* белый фон */
-      border-radius: 8px; /* закругленные углы */
-      /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); тень */
-      padding: 12px;
-      width: 250px; /* фиксированная ширина */
-      margin: auto; /* центрирование */
+      background-color: #1a202c; 
+      border-radius: 8px; 
+      padding: 20px;
+      width: 300px; 
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
     h1 {
-      font-size: 1.25rem; /* размер шрифта заголовка */
-      font-weight: 600; /* жирный шрифт */
-      margin-bottom: 16px; /* отступ снизу */
-      text-align: center; /* выравнивание по центру */
+      font-size: 1.25rem; 
+      font-weight: 600; 
+      margin-bottom: 16px; 
+      text-align: center; 
+      color: #e2e8f0;
     }
-    select, button {
-      border: 1px solid #cbd5e0; /* граница */
-      border-radius: 8px; /* закругленные углы */
-      padding: 8px; /* отступы */
-      width: 100%; /* ширина 100% */
-      margin-bottom: 12px; /* отступ снизу */
-      font-size: 1rem; /* размер шрифта */
+    select, button, .input-field {
+      border: 1px solid #4a5568; 
+      border-radius: 8px; 
+      padding: 10px; 
+      width: 100%; 
+      margin-bottom: 12px; 
+      font-size: 1rem; 
+      background-color: #2d3748; 
+      color: #e2e8f0;
     }
     button {
-      background-color: #4299e1; /* цвет фона кнопки */
-      color: white; /* цвет текста кнопки */
-      cursor: pointer; /* указатель при наведении */
+      background-color: #4299e1; 
+      color: white; 
+      cursor: pointer; 
+      transition: background-color 0.3s;
     }
     button:hover {
-      background-color: #3182ce; /* цвет фона кнопки при наведении */
+      background-color: #3182ce; 
+    }
+    .input-field:focus {
+      background-color: #4a5568;
+      outline: none;
     }
   </style>
 </head>
