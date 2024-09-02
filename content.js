@@ -45,33 +45,39 @@ function extractCaptionsData(videoPageBody) {
 }
 
 function getTranscriptURL(captionsData, preferredLanguage, preferredType) {
-  const languagePriority = preferredLanguage === 'ru' ? ['ru', 'en-GB', 'en-US', 'en'] : ['en-GB', 'en-US', 'en', 'ru'];
-  let selectedTrack;
+  const languageCodes = {
+    'ru': ['ru', 'ru-RU'],
+    'en': ['en', 'en-US', 'en-GB']
+  };
 
-  // Сначала ищем субтитры выбранного типа на предпочтительном языке
-  for (const lang of languagePriority) {
-    selectedTrack = captionsData.captionTracks.find(track => 
-      track.languageCode.startsWith(lang) && 
-      (preferredType === 'auto' ? track.kind === 'asr' : track.kind !== 'asr')
-    );
-    if (selectedTrack) break;
-  }
+  const preferredLanguageCodes = languageCodes[preferredLanguage];
+  const fallbackLanguageCodes = languageCodes[preferredLanguage === 'ru' ? 'en' : 'ru'];
 
-  // Если не нашли, ищем любые субтитры на предпочтительном языке
-  if (!selectedTrack) {
-    for (const lang of languagePriority) {
-      selectedTrack = captionsData.captionTracks.find(track => 
-        track.languageCode.startsWith(lang)
-      );
-      if (selectedTrack) break;
-    }
-  }
+  // Функция для проверки соответствия трека заданным критериям
+  const isMatchingTrack = (track, langCodes, type) => 
+    langCodes.some(code => track.languageCode.startsWith(code)) &&
+    (type === 'auto' ? track.kind === 'asr' : track.kind !== 'asr');
+
+  // Поиск трека в порядке приоритета
+  let selectedTrack = 
+    // 1. Предпочтительный язык и тип
+    captionsData.captionTracks.find(track => isMatchingTrack(track, preferredLanguageCodes, preferredType)) ||
+    // 2. Предпочтительный язык, другой тип
+    captionsData.captionTracks.find(track => isMatchingTrack(track, preferredLanguageCodes, preferredType === 'auto' ? 'manual' : 'auto')) ||
+    // 3. Другой язык, предпочтительный тип
+    captionsData.captionTracks.find(track => isMatchingTrack(track, fallbackLanguageCodes, preferredType)) ||
+    // 4. Другой язык, другой тип
+    captionsData.captionTracks.find(track => isMatchingTrack(track, fallbackLanguageCodes, preferredType === 'auto' ? 'manual' : 'auto'));
 
   if (!selectedTrack) {
     throw new Error('Подходящие субтитры не найдены');
   }
 
-  return { transcriptURL: selectedTrack.baseUrl, languageCode: selectedTrack.languageCode, kind: selectedTrack.kind };
+  return { 
+    transcriptURL: selectedTrack.baseUrl, 
+    languageCode: selectedTrack.languageCode, 
+    kind: selectedTrack.kind 
+  };
 }
 
 async function fetchTranscript(transcriptURL) {
@@ -118,15 +124,18 @@ async function handleGetAndCopySubtitles(language, type) {
       throw new Error('Субтитры недоступны для этого видео');
     }
 
-    const availableSubtitles = getAvailableSubtitles(captionsData);
+    const { transcriptURL, languageCode, kind } = getTranscriptURL(captionsData, language, type);
+    const transcriptBody = await fetchTranscript(transcriptURL);
+    const subtitles = parseTranscript(transcriptBody);
 
-    const result = await getSubtitles(language, type, captionsData);
-    copyToClipboard(result.subtitles);
-    const subtitleType = result.kind === 'asr' ? 'автоматически сгенерированные' : 'ручные';
+    copyToClipboard(subtitles);
+
+    const subtitleType = kind === 'asr' ? 'автоматически сгенерированные' : 'ручные';
+    const languageName = languageCode.startsWith('ru') ? 'русском' : 'английском';
+
     return { 
       success: true, 
-      message: `Субтитры (${result.languageCode}, ${subtitleType}) скопированы в буфер обмена`,
-      availableSubtitles: availableSubtitles
+      message: `Субтитры на ${languageName} языке (${subtitleType}) скопированы в буфер обмена`
     };
   } catch (error) {
     return { error: error.message };
