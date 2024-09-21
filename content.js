@@ -83,7 +83,25 @@ async function fetchTranscript(transcriptURL) {
 
 function parseTranscript(transcriptBody) {
   const results = [...transcriptBody.matchAll(RE_XML_TRANSCRIPT)];
-  return results.map(result => result[3] + '. ').join('').trim();
+  let text = results.map(result => result[3] + '. ').join('').trim();
+  
+  // Декодирование HTML-сущностей
+  text = decodeHTMLEntities(text);
+  
+  return text;
+}
+
+function decodeHTMLEntities(text) {
+  const textarea = document.createElement('textarea');
+  let decoded = text;
+  
+  // Декодируем до тех пор, пока есть сущности
+  while (textarea.innerHTML !== decoded) {
+    textarea.innerHTML = decoded;
+    decoded = textarea.value;
+  }
+  
+  return decoded;
 }
 
 function formatTime(seconds) {
@@ -104,24 +122,9 @@ function copyToClipboard(text) {
   document.body.removeChild(textarea);
 }
 
-async function handleGetAndCopySubtitles(language, type) {
+async function handleGetAndCopySubtitles() {
   try {
-    const videoId = getVideoId();
-    if (!videoId) {
-      throw new Error('Failed to get video ID');
-    }
-
-    const videoPageBody = await fetchVideoPage(videoId);
-    const captionsData = extractCaptionsData(videoPageBody);
-    
-    if (!captionsData) {
-      throw new Error('Subtitles are not available for this video');
-    }
-
-    const { transcriptURL, languageCode, kind } = getTranscriptURL(captionsData, language, type);
-    const transcriptBody = await fetchTranscript(transcriptURL);
-    const subtitles = parseTranscript(transcriptBody);
-
+    const { subtitles, languageCode, kind } = await getSubtitles('en', 'manual');
     copyToClipboard(subtitles);
 
     const subtitleType = kind === 'asr' ? 'auto-generated' : 'manual';
@@ -138,7 +141,7 @@ async function handleGetAndCopySubtitles(language, type) {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "getAndCopySubtitles") {
-    handleGetAndCopySubtitles(request.language, request.type).then(sendResponse);
+    handleGetAndCopySubtitles().then(sendResponse);
     return true;
   }
 });

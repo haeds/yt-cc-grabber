@@ -3,7 +3,7 @@
   "name": "YouTube Subtitle Copier",
   "version": "1.0",
   "description": "Copies YouTube video subtitles to clipboard",
-  "permissions": ["activeTab", "storage"],
+  "permissions": ["activeTab"],
   "background": {
     "service_worker": "background.js"
   },
@@ -14,7 +14,6 @@
     }
   ],
   "action": {
-    "default_popup": "popup.html",
-    "default_title": "Select and Copy Subtitles"
+    "default_title": "Copy Subtitles"
   }
 }
